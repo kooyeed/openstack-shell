@@ -7,4 +7,4 @@ install && running
 ==================
 
  . python bin/mytest.py
- . curl http://127.0.0.1:3000/hiworld
+ . curl http://127.0.0.1:3000/v1.0/hiworld
