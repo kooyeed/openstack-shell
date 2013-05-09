@@ -30,8 +30,7 @@ from mytest.openstack.common import version
 CONF = config.CONF
 
 
-def create_server(conf, name, host, port):
-    print('config:%s' % conf, name)
+def create_server(conf, name, host, port):    
     app = deploy.loadapp('config:%s' % conf, name=name)
     server = wsgi.Server(app, host=host, port=port)
     

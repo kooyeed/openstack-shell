@@ -21,11 +21,11 @@ import pwd
 
 from oslo.config import cfg
 
-from keystone.common import openssl
-from keystone import config
-from keystone.openstack.common import importutils
-from keystone.openstack.common import jsonutils
-from keystone.openstack.common import version
+from mytest.common import openssl
+from mytest import config
+from mytest.openstack.common import importutils
+from mytest.openstack.common import jsonutils
+from mytest.openstack.common import version
 
 CONF = config.CONF
 
@@ -48,7 +48,7 @@ class DbSync(BaseApp):
 
     @staticmethod
     def main():
-        for k in ['identity', 'catalog', 'policy', 'token']:
+        for k in ['hiworld']:
             driver = importutils.import_object(getattr(CONF, k).driver)
             if hasattr(driver, 'db_sync'):
                 driver.db_sync()
@@ -61,30 +61,30 @@ class BaseCertificateSetup(BaseApp):
     def add_argument_parser(cls, subparsers):
         parser = super(BaseCertificateSetup,
                        cls).add_argument_parser(subparsers)
-        parser.add_argument('--keystone-user')
-        parser.add_argument('--keystone-group')
+        parser.add_argument('--mytest-user')
+        parser.add_argument('--mytest-group')
         return parser
 
     @staticmethod
     def get_user_group():
-        keystone_user_id = None
-        keystone_group_id = None
+        mytest_user_id = None
+        mytest_group_id = None
 
         try:
-            a = CONF.command.keystone_user
+            a = CONF.command.mytest_user
             if a:
-                keystone_user_id = pwd.getpwnam(a).pw_uid
+                mytest_user_id = pwd.getpwnam(a).pw_uid
         except KeyError:
-            raise ValueError("Unknown user '%s' in --keystone-user" % a)
+            raise ValueError("Unknown user '%s' in --mytest-user" % a)
 
         try:
-            a = CONF.command.keystone_group
+            a = CONF.command.mytest_group
             if a:
-                keystone_group_id = grp.getgrnam(a).gr_gid
+                mytest_group_id = grp.getgrnam(a).gr_gid
         except KeyError:
-            raise ValueError("Unknown group '%s' in --keystone-group" % a)
+            raise ValueError("Unknown group '%s' in --mytest-group" % a)
 
-        return keystone_user_id, keystone_group_id
+        return mytest_user_id, mytest_group_id
 
 
 class PKISetup(BaseCertificateSetup):
@@ -94,8 +94,8 @@ class PKISetup(BaseCertificateSetup):
 
     @classmethod
     def main(cls):
-        keystone_user_id, keystone_group_id = cls.get_user_group()
-        conf_pki = openssl.ConfigurePKI(keystone_user_id, keystone_group_id)
+        mytest_user_id, mytest_group_id = cls.get_user_group()
+        conf_pki = openssl.ConfigurePKI(mytest_user_id, mytest_group_id)
         conf_pki.run()
 
 
@@ -106,8 +106,8 @@ class SSLSetup(BaseCertificateSetup):
 
     @classmethod
     def main(cls):
-        keystone_user_id, keystone_group_id = cls.get_user_group()
-        conf_ssl = openssl.ConfigureSSL(keystone_user_id, keystone_group_id)
+        mytest_user_id, mytest_group_id = cls.get_user_group()
+        conf_ssl = openssl.ConfigureSSL(mytest_user_id, mytest_group_id)
         conf_ssl.run()
 
 
@@ -124,7 +124,7 @@ class ImportLegacy(BaseApp):
 
     @staticmethod
     def main():
-        from keystone.common.sql import legacy
+        from mytest.common.sql import legacy
         migration = legacy.LegacyMigration(CONF.command.old_db)
         migration.migrate_all()
 
@@ -143,13 +143,13 @@ class ExportLegacyCatalog(BaseApp):
 
     @staticmethod
     def main():
-        from keystone.common.sql import legacy
+        from mytest.common.sql import legacy
         migration = legacy.LegacyMigration(CONF.command.old_db)
         print '\n'.join(migration.dump_catalog())
 
 
 class ImportNovaAuth(BaseApp):
-    """Import a dump of nova auth data into keystone."""
+    """Import a dump of nova auth data into mytest."""
 
     name = 'import_nova_auth'
 
@@ -161,7 +161,7 @@ class ImportNovaAuth(BaseApp):
 
     @staticmethod
     def main():
-        from keystone.common.sql import nova
+        from mytest.common.sql import nova
         dump_data = jsonutils.loads(open(CONF.command.dump_file).read())
         nova.import_auth(dump_data)
 
@@ -190,8 +190,8 @@ command_opt = cfg.SubCommandOpt('command',
 def main(argv=None, config_files=None):
     CONF.register_cli_opt(command_opt)
     CONF(args=argv[1:],
-         project='keystone',
-         version=version.VersionInfo('keystone').version_string(),
+         project='mytest',
+         version=version.VersionInfo('mytest').version_string(),
          usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
          default_config_files=config_files)
     config.setup_logging(CONF)

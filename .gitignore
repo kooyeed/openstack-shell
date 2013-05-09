@@ -1,2 +1,5 @@
-/bin/*.pyc
-/mytest/*.pyc
+*.pyc
+*~
+build/
+dist/
+MANIFEST
