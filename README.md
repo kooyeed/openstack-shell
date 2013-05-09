@@ -1,4 +1,0 @@
-openstack-shell
-===============
-
-basic framework 
